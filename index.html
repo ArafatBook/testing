@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Voice Chat App</title>
+<style>
+body{
+font-family:Arial;
+text-align:center;
+background:#f0f0f0;
+}
+
+.container{
+margin-top:100px;
+}
+
+button{
+padding:10px 20px;
+margin:10px;
+font-size:16px;
+}
+
+input{
+padding:10px;
+font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🎤 Simple Voice Chat</h2>
+
+<input type="text" id="room" placeholder="Enter Room Name">
+
+<br>
+
+<button onclick="startCall()">Start Voice Chat</button>
+<button onclick="endCall()">End Call</button>
+
+</div>
+
+<script>
+
+let localStream;
+let peerConnection;
+
+const servers = {
+iceServers: [
+{ urls: "stun:stun.l.google.com:19302" }
+]
+};
+
+async function startCall(){
+
+const room = document.getElementById("room").value;
+
+localStream = await navigator.mediaDevices.getUserMedia({audio:true});
+
+peerConnection = new RTCPeerConnection(servers);
+
+localStream.getTracks().forEach(track=>{
+peerConnection.addTrack(track,localStream);
+});
+
+peerConnection.ontrack = event=>{
+const audio = new Audio();
+audio.srcObject = event.streams[0];
+audio.play();
+};
+
+const offer = await peerConnection.createOffer();
+await peerConnection.setLocalDescription(offer);
+
+alert("Voice chat started. Share room name with friend.");
+
+}
+
+function endCall(){
+
+if(peerConnection){
+peerConnection.close();
+}
+
+if(localStream){
+localStream.getTracks().forEach(track=>track.stop());
+}
+
+alert("Call Ended");
+
+}
+
+</script>
+
+</body>
+</html>
